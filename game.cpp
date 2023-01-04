@@ -7,9 +7,9 @@
 
 Game::Game() {
     // Zet alle vakjes gelijk aan een nullptr
-    for (int row = 0; row < 8; ++row) {
-        for (int col = 0; col < 8; ++col) {
-            bord[row][col] = nullptr;
+    for (int r = 0; r < 8; ++r) {
+        for (int k = 0; k < 8; ++k) {
+            bord[r][k] = nullptr;
         }
     }
 }
@@ -20,34 +20,47 @@ Game::~Game() {
 
 // Zet het bord klaar; voeg de stukken op de juiste plaats toe
 void Game::setStartBord() {
-    // Plaats alle witte stukken
-    SchaakStuk* T=new Toren(wit);
-    setPiece(0,0,T);
-    for (int i = 0; i < 8; ++i) {
-        SchaakStuk* p=new Pion(wit);
-        setPiece(1,i,p);
-    }
-    /*bord[0][1] = new Piece{"knight", "white"};
-    bord[0][2] = new Piece{"bishop", "white"};
-    bord[0][3] = new Piece{"queen", "white"};
-    bord[0][4] = new Piece{"king", "white"};
-    bord[0][5] = new Piece{"bishop", "white"};
-    bord[0][6] = new Piece{"knight", "white"};
-    bord[0][7] = new Piece{"rook", "white"};
+    // Plaats alle zwarrte stukken
+    SchaakStuk* Tz=new Toren(zwart);
+    SchaakStuk* Pz=new Paard(zwart);
+    SchaakStuk* Lz=new Loper(zwart);
+    SchaakStuk* Qz=new Koningin(zwart);
+    SchaakStuk* Kz=new Koning(zwart);
 
-    // Place black pieces
-    bord[7][0] = new Piece{"rook", "black"};
-    bord[7][1] = new Piece{"knight", "black"};
-    bord[7][2] = new Piece{"bishop", "black"};
-    bord[7][3] = new Piece{"queen", "black"};
-    bord[7][4] = new Piece{"king", "black"};
-    bord[7][5] = new Piece{"bishop", "black"};
-    bord[7][6] = new Piece{"knight", "black"};
-    bord[7][7] = new Piece{"rook", "black"};
+    setPiece(0,0,Tz);
+    setPiece(0,1,Pz);
+    setPiece(0,2,Lz);
+    setPiece(0,3,Qz);
+    setPiece(0,4,Kz);
+    setPiece(0,5,Lz);
+    setPiece(0,6,Pz);
+    setPiece(0,7,Tz);
+
     for (int i = 0; i < 8; ++i) {
-        bord[6][i] = new Piece{"pawn", "black"};
+        SchaakStuk* pz=new Pion(zwart);
+        setPiece(1,i,pz);
     }
-     */
+
+    // Plaatst alle witte stukken
+    SchaakStuk* Tw=new Toren(wit);
+    SchaakStuk* Pw=new Paard(wit);
+    SchaakStuk* Lw=new Loper(wit);
+    SchaakStuk* Qw=new Koningin(wit);
+    SchaakStuk* Kw=new Koning(wit);
+
+    setPiece(7,0,Tw);
+    setPiece(7,1,Pw);
+    setPiece(7,2,Lw);
+    setPiece(7,3,Qw);
+    setPiece(7,4,Kw);
+    setPiece(7,5,Lw);
+    setPiece(7,6,Pw);
+    setPiece(7,7,Tw);
+
+    for (int i = 0; i < 8; ++i) {
+        SchaakStuk* pw=new Pion(wit);
+        setPiece(6,i,pw);
+    }
 }
 
 
