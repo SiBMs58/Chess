@@ -5,12 +5,50 @@
 
 #include "game.h"
 
-Game::Game() {}
+Game::Game() {
+    // Zet alle vakjes gelijk aan een nullptr
+    for (int row = 0; row < 8; ++row) {
+        for (int col = 0; col < 8; ++col) {
+            bord[row][col] = nullptr;
+        }
+    }
+}
 
-Game::~Game() {}
+Game::~Game() {
 
-// Zet het bord klaar; voeg de stukken op de jusite plaats toe
-void Game::setStartBord() {}
+}
+
+// Zet het bord klaar; voeg de stukken op de juiste plaats toe
+void Game::setStartBord() {
+    // Plaats alle witte stukken
+    SchaakStuk* T=new Toren(wit);
+    setPiece(0,0,T);
+    for (int i = 0; i < 8; ++i) {
+        SchaakStuk* p=new Pion(wit);
+        setPiece(1,i,p);
+    }
+    /*bord[0][1] = new Piece{"knight", "white"};
+    bord[0][2] = new Piece{"bishop", "white"};
+    bord[0][3] = new Piece{"queen", "white"};
+    bord[0][4] = new Piece{"king", "white"};
+    bord[0][5] = new Piece{"bishop", "white"};
+    bord[0][6] = new Piece{"knight", "white"};
+    bord[0][7] = new Piece{"rook", "white"};
+
+    // Place black pieces
+    bord[7][0] = new Piece{"rook", "black"};
+    bord[7][1] = new Piece{"knight", "black"};
+    bord[7][2] = new Piece{"bishop", "black"};
+    bord[7][3] = new Piece{"queen", "black"};
+    bord[7][4] = new Piece{"king", "black"};
+    bord[7][5] = new Piece{"bishop", "black"};
+    bord[7][6] = new Piece{"knight", "black"};
+    bord[7][7] = new Piece{"rook", "black"};
+    for (int i = 0; i < 8; ++i) {
+        bord[6][i] = new Piece{"pawn", "black"};
+    }
+     */
+}
 
 
 // Verplaats stuk s naar positie (r,k)
@@ -42,7 +80,7 @@ bool Game::pat(zw kleur) {
 // Als er geen schaakstuk staat op deze positie, geef nullptr terug
 SchaakStuk* Game::getPiece(int r, int k) {
     // Hier komt jouw code om op te halen welk stuk op rij r, kolom k staat
-    return nullptr;
+    return bord[r][k];
 }
 
 // Zet het schaakstuk waar s naar verwijst neer op rij r, kolom k.
@@ -52,4 +90,5 @@ SchaakStuk* Game::getPiece(int r, int k) {
 void Game::setPiece(int r, int k, SchaakStuk* s)
 {
     // Hier komt jouw code om een stuk neer te zetten op het bord
+    bord[r][k] = s;
 }

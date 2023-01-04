@@ -29,7 +29,7 @@ public:
 
 private:
     // Hier zet jij jouw datastructuur neer om het bord te bewaren ...
-    Piece* board[8][8];
+    SchaakStuk* bord[8][8];
 };
 
 
