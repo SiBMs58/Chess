@@ -16,6 +16,7 @@ SchaakGUI::SchaakGUI():ChessWindow(nullptr) {
 // geklikt wordt. x,y geeft de positie aan waar er geklikt
 // werd; r is de 0-based rij, k de 0-based kolom
 void SchaakGUI::clicked(int r, int k) {
+    /*
     // Wat hier staat is slechts een voorbeeldje dat wordt afgespeeld ter illustratie.
     // Jouw code zal er helemaal anders uitzien en zal enkel de aanpassing in de spelpositie maken en er voor
     // zorgen dat de visualisatie (al dan niet via update) aangepast wordt.
@@ -117,7 +118,7 @@ void SchaakGUI::clicked(int r, int k) {
     delete p3;
     delete P;
     delete L;
-    delete Kw;
+    delete Kw;*/
 }
 
 void SchaakGUI::newGame()
@@ -186,6 +187,13 @@ void SchaakGUI::visualizationChange() {
 // Update de inhoud van de grafische weergave van het schaakbord (scene)
 // en maak het consistent met de game state in variabele g.
 void SchaakGUI::update() {
-
+    this->g.setStartBord(); // TODO: setStartBord may not be at the update method
+    for (int r = 0; r < 8; ++r) {
+        for (int k = 0; k < 8; ++k) {
+            if (g.getPiece(r, k) != nullptr){
+                setItem(r, k,g.getPiece(r,k));
+            }
+        }
+    }
 }
 
