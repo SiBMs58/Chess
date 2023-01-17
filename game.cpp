@@ -1,5 +1,5 @@
-//  Student:
-//  Rolnummer:
+//  Student: Siebe Mees
+//  Rolnummer: 20222485
 //  Opmerkingen: (bvb aanpassingen van de opgave)
 //
 
@@ -12,6 +12,7 @@ Game::Game() {
             bord[r][k] = nullptr;
         }
     }
+    setStartBord();
 }
 
 Game::~Game() {
@@ -20,7 +21,7 @@ Game::~Game() {
 
 // Zet het bord klaar; voeg de stukken op de juiste plaats toe
 void Game::setStartBord() {
-    // Plaats alle zwarrte stukken
+    // Plaats alle zwarte stukken
     SchaakStuk* Tz=new Toren(zwart);
     SchaakStuk* Pz=new Paard(zwart);
     SchaakStuk* Lz=new Loper(zwart);
@@ -69,7 +70,26 @@ void Game::setStartBord() {
 // en verandert er niets aan het schaakbord.
 // Anders wordt de move uitgevoerd en wordt true teruggegeven
 bool Game::move(SchaakStuk* s, int r, int k) {
-    return true;
+    vector<pair<int,int>> v = s->geldige_zetten(*this);
+    // Kijk waar het stuk stond & zet dat gelijk ook nullptr
+    for (int j = 0; j < 8; ++j) {
+        for (int l = 0; l < 8; ++l) {
+            if (bord[j][l] = s){
+                bord[j][l] = nullptr;
+                break;
+            }
+        }
+    }
+    // Zet het stuk naar waar het kan bewegen
+    for (int i = 0; i < v.size(); i++) {
+        if (v[i].first == r && v[i].second == k){
+            setPiece(r, k, s);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 }
 
 // Geeft true als kleur schaak staat
