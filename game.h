@@ -1,5 +1,5 @@
-//  Student:
-//  Rolnummer:
+//  Student: Siebe Mees
+//  Rolnummer: 20222485
 //  Opmerkingen: (bvb aanpassingen van de opgave)
 //
 
@@ -11,9 +11,15 @@
 using namespace std;
 
 class Game {
-// variabelen om de status van het spel/bord te bewaren
-
 public:
+    // variabelen om de status van het spel/bord te bewaren
+    bool beurtWit = true;
+    // Last piece that was clicked
+    SchaakStuk* laatstClickedStuk;
+    // Number of times the last piece was clicked
+    int clickCount;
+
+
     Game();
     ~Game();
 
