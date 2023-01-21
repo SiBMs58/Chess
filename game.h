@@ -17,7 +17,7 @@ public:
     // Last piece that was clicked
     SchaakStuk* laatstClickedStuk;
     // Number of times the last piece was clicked
-    int clickCount;
+    int clickCount = 0;
 
 
     Game();

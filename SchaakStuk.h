@@ -53,10 +53,7 @@ public:
         return Piece(Piece::Rook,getKleur()==wit?Piece::White:Piece::Black);
     }
 
-    vector<pair<int,int>> geldige_zetten(Game& g) const override{
-        std::vector<std::pair<int, int>> moves;
-        return moves;
-    }
+    vector<pair<int,int>> geldige_zetten(Game& g) const override;
 };
 
 class Paard:public SchaakStuk {
@@ -67,10 +64,7 @@ public:
         return Piece(Piece::Knight,getKleur()==wit?Piece::White:Piece::Black);
     }
 
-    vector<pair<int,int>> geldige_zetten(Game& g) const override{
-        std::vector<std::pair<int, int>> moves;
-        return moves;
-    }
+    vector<pair<int,int>> geldige_zetten(Game& g) const override;
 };
 
 class Loper:public SchaakStuk {
@@ -81,10 +75,7 @@ public:
         return Piece(Piece::Bishop,getKleur()==wit?Piece::White:Piece::Black);
     }
 
-    vector<pair<int,int>> geldige_zetten(Game& g) const override{
-        std::vector<std::pair<int, int>> moves;
-        return moves;
-    }
+    vector<pair<int,int>> geldige_zetten(Game& g) const override;
 };
 
 class Koning:public SchaakStuk {
@@ -95,10 +86,7 @@ public:
         return Piece(Piece::King,getKleur()==wit?Piece::White:Piece::Black);
     }
 
-    vector<pair<int,int>> geldige_zetten(Game& g) const override{
-        std::vector<std::pair<int, int>> moves;
-        return moves;
-    }
+    vector<pair<int,int>> geldige_zetten(Game& g) const override;
 };
 
 class Koningin:public SchaakStuk {
@@ -109,10 +97,7 @@ public:
         return Piece(Piece::Queen,getKleur()==wit?Piece::White:Piece::Black);
     }
 
-    vector<pair<int,int>> geldige_zetten(Game& g) const override{
-        std::vector<std::pair<int, int>> moves;
-        return moves;
-    }
+    vector<pair<int,int>> geldige_zetten(Game& g) const override;
 };
 
 #endif //SCHAKEN_SCHAAKSTUK_H

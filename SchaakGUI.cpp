@@ -20,48 +20,100 @@ SchaakGUI::SchaakGUI():ChessWindow(nullptr) {
 // geklikt wordt. x,y geeft de positie aan waar er geklikt
 // werd; r is de 0-based rij, k de 0-based kolom
 void SchaakGUI::clicked(int r, int k) {
-    SchaakStuk* s=g.getPiece(r,k);
-
-    // Checkt of er op een leeg vakje word geclicked
-    if (s == nullptr){
-        // Gebeurt niets
-    } else {
-        // Checkt aan wie de beurt is
-        // Als wit aan de beurt is een het stuk waar op geclicked wit of als het niet de beurt is aan wit moet er op een zwart stuk geclicked worden
-        if (g.beurtWit==true && s->getKleur()==wit || g.beurtWit == false && s->getKleur()==zwart){
-            // Checkt op de eerste click
-            if (s == g.laatstClickedStuk){
-                // Increment de clickCounter
-                g.clickCount++;
-                // Checkt op een 2de click op hetzelfde stuk
-                if (g.clickCount == 2) {
-                    vector<pair<int,int>> v=s->geldige_zetten(g);
-                    cout << "Row " << r << " Col " << k << endl;
-                    for(int i = 0; i < v.size(); i++) {
-                        cout << v[i].first << ", " << v[i].second << endl;
-                        // Bepaal positie naar waar het stuk verplaatst moet worden
-                        setTileFocus(v[i].first, v[i].second, true);
-                        // TODO: Klik je daarentegen op een andere positie, dan ga je na of het een geldige zet is. Indien dit zo is, doe de verplaatsing in het spel (game g) en update de grafische weergave. Indien de zet ongeldig is geef je een foutboodschap met de functie message(foutboodschap). De foutboodschap kan bijvoorbeeld zijn: “Deze zet is ongeldig.”
-                        g.move(s, 4,0);
-                    }
-
-
-                    // Checkt of wit zijn beurt heeft gedaan zo ja dan gaat de beurt naar zwart (of de beurt wit op false)
-                    if (g.beurtWit == true) {
-                        // zet de witte beurt op false
-                        g.beurtWit = false;
-                    } else {
-                        g.beurtWit = true;
+    SchaakStuk *s = g.getPiece(r, k);
+    // Checkt of er op een "geldige" zet word geklikt
+    if (g.laatstClickedStuk != s && g.clickCount == 2) {
+        vector<pair<int, int>> v = g.laatstClickedStuk->geldige_zetten(g);
+        bool statement1_executed = false;
+        for (int i = 0; i < v.size(); ++i) {
+            if (r == v[i].first && k == v[i].second) {
+                // Verwijder select en ook de focus
+                // focus
+                for (int k = 0; k < v.size(); ++k) {
+                    setTileFocus(v[k].first, v[k].second, false);
+                }
+                // Select
+                for (int j = 0; j < 8; ++j) {
+                    for (int l = 0; l < 8; ++l) {
+                        if (g.getPiece(j, l) == g.laatstClickedStuk){
+                            setTileSelect(j, l, false);
+                        }
                     }
                 }
-            } else {
-                setTileSelect(r, k, true);
-                g.laatstClickedStuk = s;
-                g.clickCount = 1;
+                // Beweeg het stuk
+                g.move(g.laatstClickedStuk, r, k);
+                // update de GUI
+                update();
+                statement1_executed = true;
+                // Zet de beurt naar de andere kleur
+                if (g.beurtWit == true) {
+                    g.beurtWit = false;
+                } else {
+                    g.beurtWit = true;
+                }
             }
-        } else {
-            // Gebeurt niets
         }
+        if (statement1_executed == false) {
+            message("Deze zet is ongeldig.");
+        }
+    }
+    // Checkt als een stuk geselecteerd is maar er dan toch op iets anders wordt geklikt
+    else if (s == nullptr && s != g.laatstClickedStuk){
+        g.clickCount = 0;
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                if (g.getPiece(i, j) == g.laatstClickedStuk) {
+                    setTileSelect(i, j, false);
+                }
+            }
+        }
+    }
+    // Checkt of er op een leeg vakje word geclicked
+    // Indien er niet op een leeg vakje wordt geclickt gaat het na of er op een "geldig" stuk werd geclicked
+    // Checkt aan wie de beurt is
+    // Als wit aan de beurt is een het stuk waar op geclicked wit of
+    // als wit niet aan de beurt is moet er op een zwart stuk geclicked worden
+    else if (g.beurtWit == true && s->getKleur() == wit || g.beurtWit == false && s->getKleur() == zwart) {
+        // Eerste keer geduwd op geledig vakje dus selecteren we dat
+        if (g.clickCount == 0) {
+            setTileSelect(r, k, true);
+            g.clickCount++;
+            g.laatstClickedStuk = s;
+            // Tweede keer op het geldig vakje word geduwd
+        } else if (g.clickCount == 1 && g.laatstClickedStuk == s) {
+            // Bepaal de geldige zetten
+            vector<pair<int, int>> v = s->geldige_zetten(g);
+            for (int i = 0; i < v.size(); ++i) {
+                // Focus mogelijke zetten
+                setTileFocus(v[i].first, v[i].second, true);
+            }
+            // Increment clickcount
+            g.clickCount++;
+            // Derde click; als er terug op het geselecteerd vakje word geduwd
+            // dan deseleteer je dat vakje
+        } else if (g.clickCount == 2 && g.laatstClickedStuk == s) {
+            // Bepaal de geldige zetten
+            vector<pair<int, int>> v = s->geldige_zetten(g);
+            setTileSelect(r, k, false);
+            for (int i = 0; i < v.size(); ++i) {
+                // Verwijder focus mogelijke zetten
+                setTileFocus(v[i].first, v[i].second, false);
+            }
+            g.clickCount = 0;
+        } else {
+            g.clickCount = 0;
+            for (int i = 0; i < 8; ++i) {
+                for (int j = 0; j < 8; ++j) {
+                    if (g.getPiece(i, j) == g.laatstClickedStuk) {
+                        setTileSelect(i, j, false);
+                    }
+                }
+            }
+        }
+    }
+    // Er gebeurt niet als er op een leeg vakje wordt geduwd of op een ongeldig stuk
+    else {
+        // Er gebeurt niets
     }
 }
 
@@ -131,6 +183,7 @@ void SchaakGUI::visualizationChange() {
 // Update de inhoud van de grafische weergave van het schaakbord (scene)
 // en maak het consistent met de game state in variabele g.
 void SchaakGUI::update() {
+    clearBoard();
     for (int r = 0; r < 8; ++r) {
         for (int k = 0; k < 8; ++k) {
             if (g.getPiece(r, k) != nullptr){
@@ -139,4 +192,3 @@ void SchaakGUI::update() {
         }
     }
 }
-
