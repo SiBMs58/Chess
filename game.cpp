@@ -22,20 +22,23 @@ Game::~Game() {
 // Zet het bord klaar; voeg de stukken op de juiste plaats toe
 void Game::setStartBord() {
     // Plaats alle zwarte stukken
-    SchaakStuk* Tz=new Toren(zwart);
-    SchaakStuk* Pz=new Paard(zwart);
-    SchaakStuk* Lz=new Loper(zwart);
+    SchaakStuk* Tz1=new Toren(zwart);
+    SchaakStuk* Tz2=new Toren(zwart);
+    SchaakStuk* Pz1=new Paard(zwart);
+    SchaakStuk* Pz2=new Paard(zwart);
+    SchaakStuk* Lz1=new Loper(zwart);
+    SchaakStuk* Lz2=new Loper(zwart);
     SchaakStuk* Qz=new Koningin(zwart);
     SchaakStuk* Kz=new Koning(zwart);
 
-    setPiece(0,0,Tz);
-    setPiece(0,1,Pz);
-    setPiece(0,2,Lz);
+    setPiece(0,0,Tz1);
+    setPiece(0,1,Pz1);
+    setPiece(0,2,Lz1);
     setPiece(0,3,Qz);
     setPiece(0,4,Kz);
-    setPiece(0,5,Lz);
-    setPiece(0,6,Pz);
-    setPiece(0,7,Tz);
+    setPiece(0,5,Lz2);
+    setPiece(0,6,Pz2);
+    setPiece(0,7,Tz2);
 
     for (int i = 0; i < 8; ++i) {
         SchaakStuk* pz=new Pion(zwart);
@@ -43,20 +46,23 @@ void Game::setStartBord() {
     }
 
     // Plaatst alle witte stukken
-    SchaakStuk* Tw=new Toren(wit);
-    SchaakStuk* Pw=new Paard(wit);
-    SchaakStuk* Lw=new Loper(wit);
+    SchaakStuk* Tw1=new Toren(wit);
+    SchaakStuk* Tw2=new Toren(wit);
+    SchaakStuk* Pw1=new Paard(wit);
+    SchaakStuk* Pw2=new Paard(wit);
+    SchaakStuk* Lw1=new Loper(wit);
+    SchaakStuk* Lw2=new Loper(wit);
     SchaakStuk* Qw=new Koningin(wit);
     SchaakStuk* Kw=new Koning(wit);
 
-    setPiece(7,0,Tw);
-    setPiece(7,1,Pw);
-    setPiece(7,2,Lw);
+    setPiece(7,0,Tw1);
+    setPiece(7,1,Pw1);
+    setPiece(7,2,Lw1);
     setPiece(7,3,Qw);
     setPiece(7,4,Kw);
-    setPiece(7,5,Lw);
-    setPiece(7,6,Pw);
-    setPiece(7,7,Tw);
+    setPiece(7,5,Lw2);
+    setPiece(7,6,Pw2);
+    setPiece(7,7,Tw2);
 
     for (int i = 0; i < 8; ++i) {
         SchaakStuk* pw=new Pion(wit);
@@ -70,25 +76,27 @@ void Game::setStartBord() {
 // en verandert er niets aan het schaakbord.
 // Anders wordt de move uitgevoerd en wordt true teruggegeven
 bool Game::move(SchaakStuk* s, int r, int k) {
-    vector<pair<int,int>> v = s->geldige_zetten(*this);
-    // Kijk waar het stuk stond & zet dat gelijk ook nullptr
-    for (int j = 0; j < 8; ++j) {
-        for (int l = 0; l < 8; ++l) {
-            if (bord[j][l] = s){
-                bord[j][l] = nullptr;
-                break;
+    clickCount = 0;
+    bool statement1_executed = false;
+    bool statement2_executed = false;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            // Zet het nieuwe stuk - statement 1
+            if (i == r && j == k) {
+                setPiece(i, j, s);
+                statement1_executed = true;
+            }
+            // Zet het oude vakje leeg - statement 2
+            else if (getPiece(i, j) == s){
+                bord[i][j] = nullptr;
+                statement2_executed = true;
             }
         }
     }
-    // Zet het stuk naar waar het kan bewegen
-    for (int i = 0; i < v.size(); i++) {
-        if (v[i].first == r && v[i].second == k){
-            setPiece(r, k, s);
-            return true;
-        }
-        else {
-            return false;
-        }
+    if (statement1_executed && statement2_executed) {
+        return true;
+    } else {
+        return false;
     }
 }
 
