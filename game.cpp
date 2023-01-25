@@ -5,6 +5,8 @@
 
 #include "game.h"
 
+#include <string>
+
 Game::Game() {
     // Zet alle vakjes gelijk aan een nullptr
     for (int r = 0; r < 8; ++r) {
@@ -76,44 +78,117 @@ void Game::setStartBord() {
 // en verandert er niets aan het schaakbord.
 // Anders wordt de move uitgevoerd en wordt true teruggegeven
 bool Game::move(SchaakStuk* s, int r, int k) {
-    clickCount = 0;
-    bool statement1_executed = false;
-    bool statement2_executed = false;
+    // Er word alleen verplaatst indien de zet er niet voor zorgt dat de koning van de eigen kleur schaak komt te staan
+    // Kijk of je de vorige zet al schaak stond zo ja dan moet je wel kunnen verplaatsen
+    if (s->isKoning() && schaak(s->getKleur()) && schaak(laatstClickedStuk->getKleur()) == false) {
+        return false;
+    }
+    // Update de positie
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            // Zet het nieuwe stuk - statement 1
+            // Zet het nieuwe stuk
             if (i == r && j == k) {
-                setPiece(i, j, s);
-                statement1_executed = true;
+                bord[i][j] = s;
             }
-            // Zet het oude vakje leeg - statement 2
+            // Zet het oude vakje leeg
             else if (getPiece(i, j) == s){
                 bord[i][j] = nullptr;
-                statement2_executed = true;
             }
         }
     }
-    if (statement1_executed && statement2_executed) {
-        return true;
-    } else {
-        return false;
-    }
+    stukVerplaatst = true;
+    return true;
 }
 
 // Geeft true als kleur schaak staat
 bool Game::schaak(zw kleur) {
+    // Zoek de positie van de koning
+    int rijKoning, kolomKoning;
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            // Om te kunnen checken dat een stuk een koning is
+            if (bord[i][j] != nullptr && getPiece(i, j)->getKleur() == kleur && bord[i][j]->isKoning()) {
+                rijKoning = i;
+                kolomKoning = j;
+            }
+        }
+    }
+    // Loop door heel het bord
+    for (int r = 0; r < 8; ++r) {
+        for (int k = 0; k < 8; ++k) {
+            // Kijk eerst dat het geen leeg stuk is
+            if (getPiece(r, k) != nullptr) {
+                // Kijk dan of het stuk een andere kleur heeft en dan
+                if (getPiece(r, k)->getKleur() != kleur) {
+                    // bereken voor elk vijandelijk stuk de geldige zetten
+                    SchaakStuk* s = getPiece(r, k);
+                    vector<pair<int, int>> v =s->geldige_zetten(*this);
+                    // Kijk dan of een van de geldige zetten gelijk is aan de postie van d koning
+                    for (int i = 0; i < v.size(); ++i) {
+                        if (v[i].first == rijKoning && v[i].second == kolomKoning) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
     return false;
 }
 
 // Geeft true als kleur schaakmat staat
 bool Game::schaakmat(zw kleur) {
-    return false;
+    // Als de kleur niet schaak staat kan het ook niet schaakmat staan
+    if (schaak(kleur) == false) {
+        return false;
+    } else {
+        // Kijk of de koning een beweging kan uitvoeren
+        for (int r = 0; r < 8; ++r) {
+            for (int k = 0; k < 8; ++k) {
+                // Om te kunnen checken dat een stuk een koning is
+                if (bord[r][k] != nullptr && getPiece(r, k)->getKleur() == kleur && bord[r][k]->isKoning()) {
+                    SchaakStuk* koning = getPiece(r, k);
+                    // Bepaal de geldige zetten van de koning
+                    vector<pair<int, int>> v = getPiece(r, k)->geldige_zetten(*this);
+                    for (int i = 0; i < v.size(); ++i) {
+                        // We stimuleren nu alle geldige zetten om de zien dat we die mogen doen
+                        if (move(koning, v[i].first, v[i].second)) {
+                            return false;
+                        } else if (move(koning, v[i].first, v[i].second) == false) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }
 
 // Geeft true als kleur pat staat
 // (pat = geen geldige zet mogelijk, maar kleur staat niet schaak;
 // dit resulteert in een gelijkspel)
 bool Game::pat(zw kleur) {
+    if (schaak(kleur) == false || schaak(kleur) == false) {
+        return false;
+    } else {
+        // Kijk of er nog een stuk is van die kleur die een geldige zet kan uitoefenen die niet wordt terug geroepen
+        for (int r = 0; r < 8; ++r) {
+            for (int k = 0; k < 8; ++k) {
+                if (getPiece(r, k) != nullptr) {
+                    if (getPiece(r, k)->getKleur() == kleur) {
+                        SchaakStuk* s= getPiece(r, k);
+                        vector<pair<int, int>> v = s->geldige_zetten(*this);
+                        for (int i = 0; i < v.size(); ++i) {
+                            if (move(s, v[i].first, v[i].second) == false) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     return false;
 }
 
@@ -128,8 +203,7 @@ SchaakStuk* Game::getPiece(int r, int k) {
 // Als er al een schaakstuk staat, wordt het overschreven.
 // Bewaar in jouw datastructuur de *pointer* naar het schaakstuk,
 // niet het schaakstuk zelf.
-void Game::setPiece(int r, int k, SchaakStuk* s)
-{
+void Game::setPiece(int r, int k, SchaakStuk* s) {
     // Hier komt jouw code om een stuk neer te zetten op het bord
     bord[r][k] = s;
 }

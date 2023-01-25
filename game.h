@@ -14,11 +14,12 @@ class Game {
 public:
     // variabelen om de status van het spel/bord te bewaren
     bool beurtWit = true;
-    // Last piece that was clicked
+    // Laatste waar werd op geklikt (help variable voor clicked functie in schaakGUI.cpp)
     SchaakStuk* laatstClickedStuk;
-    // Number of times the last piece was clicked
+    // Aantal keren dat het het laatste stuk werd aan geklikt
     int clickCount = 0;
-
+    // Het stuk is succesvol verplaatst
+    bool stukVerplaatst = false;
 
     Game();
     ~Game();

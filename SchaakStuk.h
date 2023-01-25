@@ -30,6 +30,11 @@ public:
 
     virtual vector<pair<int,int>> geldige_zetten(Game& g) const = 0;
 
+    // Help methode voor schaak
+    virtual bool isKoning() const {return false;}
+    // Voor setTitleTreat
+    virtual bool isPion() const {return false;}
+
 private:
     zw kleur;
 
@@ -43,6 +48,9 @@ public:
     }
 
     virtual vector<pair<int,int>> geldige_zetten(Game& g) const override;
+
+    // Helper class voor setTitleThreat
+    bool isPion() const override {return true;}
 };
 
 class Toren:public SchaakStuk {
@@ -54,6 +62,7 @@ public:
     }
 
     vector<pair<int,int>> geldige_zetten(Game& g) const override;
+
 };
 
 class Paard:public SchaakStuk {
@@ -65,6 +74,7 @@ public:
     }
 
     vector<pair<int,int>> geldige_zetten(Game& g) const override;
+
 };
 
 class Loper:public SchaakStuk {
@@ -76,6 +86,7 @@ public:
     }
 
     vector<pair<int,int>> geldige_zetten(Game& g) const override;
+
 };
 
 class Koning:public SchaakStuk {
@@ -87,6 +98,9 @@ public:
     }
 
     vector<pair<int,int>> geldige_zetten(Game& g) const override;
+
+    // Helper klass voor schaak
+    bool isKoning() const override {return true;}
 };
 
 class Koningin:public SchaakStuk {
