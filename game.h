@@ -1,5 +1,5 @@
-//  Student:
-//  Rolnummer:
+//  Student: Siebe Mees
+//  Rolnummer: 20222485
 //  Opmerkingen: (bvb aanpassingen van de opgave)
 //
 
@@ -11,9 +11,16 @@
 using namespace std;
 
 class Game {
-// variabelen om de status van het spel/bord te bewaren
-
 public:
+    // variabelen om de status van het spel/bord te bewaren
+    bool beurtWit = true;
+    // Laatste waar werd op geklikt (help variable voor clicked functie in schaakGUI.cpp)
+    SchaakStuk* laatstClickedStuk;
+    // Aantal keren dat het het laatste stuk werd aan geklikt
+    int clickCount = 0;
+    // Het stuk is succesvol verplaatst
+    bool stukVerplaatst = false;
+
     Game();
     ~Game();
 
@@ -29,7 +36,7 @@ public:
 
 private:
     // Hier zet jij jouw datastructuur neer om het bord te bewaren ...
-    Piece* board[8][8];
+    SchaakStuk* bord[8][8];
 };
 
 
