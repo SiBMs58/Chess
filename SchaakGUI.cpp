@@ -130,7 +130,7 @@ void SchaakGUI::clicked(int r, int k) {
     // Kijkt voor de derde klik
     } else if (g.clickCount == 2) {
         // Checkt of er terug op hetzelfde stuk werd geklikt
-        // TODO: Delete this line - if (g.getPiece(r, k) != nullptr)
+        // TODO: Heb deze line verwijderd - if (g.getPiece(r, k) != nullptr)
         if (g.getPiece(r, k) == g.laatstClickedStuk) {
             // Maak de selectie ongedaan
             removeAllMarking();
@@ -182,12 +182,11 @@ void SchaakGUI::clicked(int r, int k) {
                 }
             } else {
                 message("Deze zet is ongeldig.");
-                // Reset help variabelen
-                g.clickCount = 0;
             }
-        }
         // Reset help variabelen
+        removeAllMarking();
         g.clickCount = 0;
+        }
     } else {
         // Doe niets
     }
@@ -253,6 +252,13 @@ void SchaakGUI::undo() {
     undoStack.pop();
     message("Je hebt undo gekozen");
     update();
+    // TODO: Eventueel beurt aanpassen interpretatie opgave
+    if (g.laatstClickedStuk->getKleur() == wit) {
+        g.beurtWit = true;
+    } else {
+        g.beurtWit = false;
+    }
+    g.stukVerplaatst = false;
 }
 
 void SchaakGUI::redo() {
@@ -263,6 +269,13 @@ void SchaakGUI::redo() {
     redoStack.pop();
     message("Je hebt redo gekozen");
     update();
+    // TODO: Eventueel beurt aanpassen interpretatie opgave
+    if (g.laatstClickedStuk->getKleur() == wit) {
+        g.beurtWit = false;
+    } else {
+        g.beurtWit = true;
+    }
+    g.stukVerplaatst = false;
 }
 
 
