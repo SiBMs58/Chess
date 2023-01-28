@@ -183,10 +183,10 @@ void SchaakGUI::clicked(int r, int k) {
             } else {
                 message("Deze zet is ongeldig.");
             }
-        // Reset help variabelen
-        removeAllMarking();
-        g.clickCount = 0;
         }
+    // Reset help variabelen
+    removeAllMarking();
+    g.clickCount = 0;
     } else {
         // Doe niets
     }
