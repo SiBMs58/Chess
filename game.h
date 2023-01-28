@@ -34,6 +34,9 @@ public:
     SchaakStuk* getPiece(int r, int k);
     void setPiece(int r, int k, SchaakStuk* s);
 
+    vector<vector<SchaakStuk*>> getBord() const;
+    void setBord(vector<vector<SchaakStuk*>>);
+
 private:
     // Hier zet jij jouw datastructuur neer om het bord te bewaren ...
     SchaakStuk* bord[8][8];

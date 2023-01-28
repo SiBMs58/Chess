@@ -9,6 +9,7 @@
 #include "SchaakStuk.h"
 #include <QMessageBox>
 #include <QAction>
+#include <stack>
 
 class SchaakGUI:public ChessWindow {
 public:
@@ -26,6 +27,10 @@ private:
     void undo() override;
     void redo() override;
     void visualizationChange() override;
+
+    // Stacks voor undo and redo
+    stack<vector<vector<SchaakStuk*>>> undoStack;
+    stack<vector<vector<SchaakStuk*>>> redoStack;
 
 /*  Overgeerfde functies van ChessWindow:
 

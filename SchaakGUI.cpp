@@ -7,6 +7,7 @@
 #include "guicode/fileIO.h"
 
 #include <algorithm>
+#include <stack>
 using namespace std;
 
 // Constructor
@@ -14,13 +15,35 @@ SchaakGUI::SchaakGUI():ChessWindow(nullptr) {
     update();
 }
 
-// TODO: Maak de click fucntie mooi werken a.d.h.v de opgave
+
 // Deze functie wordt opgeroepen telkens er op het schaakbord
 // geklikt wordt. x,y geeft de positie aan waar er geklikt
 // werd; r is de 0-based rij, k de 0-based kolom
 void SchaakGUI::clicked(int r, int k) {
     // Kijk voor de eerste klik
     if (g.clickCount == 0) {
+        // Voor de undo en redo
+        undoStack.push(g.getBord());
+        // Toon de stukken dat geslagen kunnen worden indien displayThreats aan staat
+        // Note ik hoop de betekenis van displayThreat en displayKills goed geïnterpreteerd heb anders is het een snelle omwisseling van de statements
+        if (displayThreats()) {
+            for (int a = 0; a < 8; ++a) {
+                for (int b = 0; b < 8; ++b) {
+                    // Als we een stuk tegen komen
+                    if (g.getPiece(a, b) != nullptr) {
+                        // Berekenen we de geldige zetten
+                        vector<pair<int, int>> v = g.getPiece(a,b)->geldige_zetten(g);
+                        // Dan kijken we of er een stuk op een geldige posiste staat zo ja dan markeren we dit stuk
+                        for (int c = 0; c < v.size(); ++c) {
+                            if (g.getPiece(v[c].first, v[c].second) != nullptr) {
+                                // Markeer dan dit stuk
+                                setPieceThreat(v[c].first, v[c].second, true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
         // Kijkt of er op een stuk wordt geklikt
         if (g.getPiece(r, k) != nullptr) {
             // Kijk op welk stuk er werd geklikt
@@ -42,56 +65,60 @@ void SchaakGUI::clicked(int r, int k) {
     } else if (g.clickCount == 1 && g.getPiece(r, k) == g.laatstClickedStuk) {
         // Bepaal je de geldige zetten van het stuk
         vector<pair<int, int>> v = g.laatstClickedStuk->geldige_zetten(g);
-        for (int i = 0; i < v.size(); ++i) {
-            setTileFocus(v[i].first, v[i].second, true);
+        if (displayMoves()) {
+            for (int i = 0; i < v.size(); ++i) {
+                setTileFocus(v[i].first, v[i].second, true);
+            }
         }
-        // TODO: Nakijken/ Checken, exeptions lang te randen?
         // Bepaal de zetten die door vijandelijke stukken worden bedreigd
-        for (int m = 0; m < 8; ++m) {
-            for (int n = 0; n < 8; ++n) {
-                // Kijk eerst dat het geen leeg stuk is
-                if (g.getPiece(m, n) != nullptr) {
-                    // Kijk dan of het stuk een andere kleur heeft en dan
-                    if (g.getPiece(m, n)->getKleur() != g.laatstClickedStuk->getKleur()) {
-                        // Bereken voor elk vijandelijk stuk de geldige zetten
-                        SchaakStuk* vijandelijkStuk = g.getPiece(m, n);
-                        vector<pair<int, int>> geldigeZettenVijandelijkStuk;
-                        if (vijandelijkStuk->isPion() == false) {
-                            vector<pair<int, int>> geldigeZettenVijandelijkStuk = vijandelijkStuk->geldige_zetten(g);
-                        }
-                        // Uitzondering voor de pion
-                        else if (vijandelijkStuk->isPion()) {
-                            // Dan kijk je welke kleur de pion heeft
-                            if (vijandelijkStuk->getKleur() == zwart) {
-                                // Dan kijken we naar de diagonalen recht en links onder of dit en geldige zet is van het op geklikt schaakstuk
-                                for (int a = 0; a < v.size(); ++a) {
-                                    if (v[a].first == m+1 && v[a].second == n+1) {
-                                        geldigeZettenVijandelijkStuk.push_back(make_pair(m+1, n+1));
+        if (displayKills()) {
+            for (int m = 0; m < 8; ++m) {
+                for (int n = 0; n < 8; ++n) {
+                    // Kijk eerst dat het geen leeg stuk is
+                    if (g.getPiece(m, n) != nullptr) {
+                        // Kijk dan of het stuk een andere kleur heeft en dan
+                        if (g.getPiece(m, n)->getKleur() != g.laatstClickedStuk->getKleur()) {
+                            // Bereken voor elk vijandelijk stuk de geldige zetten
+                            SchaakStuk* vijandelijkStuk = g.getPiece(m, n);
+                            vector<pair<int, int>> geldigeZettenVijandelijkStuk;
+                            if (vijandelijkStuk->isPion() == false) {
+                                vector<pair<int, int>> geldigeZettenVijandelijkStuk = vijandelijkStuk->geldige_zetten(g);
+                            }
+                                // Uitzondering voor de pion
+                            else if (vijandelijkStuk->isPion()) {
+                                // Dan kijk je welke kleur de pion heeft
+                                if (vijandelijkStuk->getKleur() == zwart) {
+                                    // Dan kijken we naar de diagonalen recht en links onder of dit en geldige zet is van het op geklikt schaakstuk
+                                    for (int a = 0; a < v.size(); ++a) {
+                                        if (v[a].first == m+1 && v[a].second == n+1) {
+                                            geldigeZettenVijandelijkStuk.push_back(make_pair(m+1, n+1));
+                                        }
+                                        if (v[a].first == m+1 && v[a].second == n-1) {
+                                            geldigeZettenVijandelijkStuk.push_back(make_pair(m+1, n-1));
+                                        }
                                     }
-                                    if (v[a].first == m+1 && v[a].second == n-1) {
-                                        geldigeZettenVijandelijkStuk.push_back(make_pair(m+1, n-1));
-                                    }
-                                }
-                            } else {
-                                // Dan kijken we naar de diagonalen recht en links boven of dit en geldige zet is van het op geklikt schaakstuk
-                                for (int a = 0; a < v.size(); ++a) {
-                                    if (v[a].first == m-1 && v[a].second == n+1) {
-                                        geldigeZettenVijandelijkStuk.push_back(make_pair(m-1, n+1));
-                                    }
-                                    if (v[a].first == m-1 && v[a].second == n-1) {
-                                        geldigeZettenVijandelijkStuk.push_back(make_pair(m-1, n-1));
+                                } else {
+                                    // Dan kijken we naar de diagonalen recht en links boven of dit en geldige zet is van het op geklikt schaakstuk
+                                    for (int a = 0; a < v.size(); ++a) {
+                                        if (v[a].first == m-1 && v[a].second == n+1) {
+                                            geldigeZettenVijandelijkStuk.push_back(make_pair(m-1, n+1));
+                                        }
+                                        if (v[a].first == m-1 && v[a].second == n-1) {
+                                            geldigeZettenVijandelijkStuk.push_back(make_pair(m-1, n-1));
+                                        }
                                     }
                                 }
                             }
-                        }
-                        // Bepalen van gemeenschappelijke elemenent
-                        // Bron: https://stackoverflow.com/questions/21410803/check-for-common-members-in-vector-c
-                        // Loop voor de vectoren en check of ze dezelfde elementen hebben
-                        vector<pair<int, int>> gemeenschappelijkeElementen;
-                        set_intersection(v.begin(), v.end(), geldigeZettenVijandelijkStuk.begin(), geldigeZettenVijandelijkStuk.end(), back_inserter(gemeenschappelijkeElementen));
-                        if (gemeenschappelijkeElementen.size() != 0) {
-                            for (int i = 0; i < gemeenschappelijkeElementen.size(); ++i) {
-                                setTileThreat(gemeenschappelijkeElementen[i].first, gemeenschappelijkeElementen[i].second, true);
+                            // Bepalen van gemeenschappelijke elemenent
+                            // Bron: https://stackoverflow.com/questions/21410803/check-for-common-members-in-vector-c
+                            // Loop voor de vectoren en check of ze dezelfde elementen hebben
+                            vector<pair<int, int>> gemeenschappelijkeElementen;
+                            set_intersection(v.begin(), v.end(), geldigeZettenVijandelijkStuk.begin(), geldigeZettenVijandelijkStuk.end(), back_inserter(gemeenschappelijkeElementen));
+                            if (gemeenschappelijkeElementen.size() != 0) {
+                                for (int i = 0; i < gemeenschappelijkeElementen.size(); ++i) {
+                                    setTileFocus(gemeenschappelijkeElementen[i].first, gemeenschappelijkeElementen[i].second, true);
+                                    setTileThreat(gemeenschappelijkeElementen[i].first, gemeenschappelijkeElementen[i].second, true);
+                                }
                             }
                         }
                     }
@@ -103,21 +130,23 @@ void SchaakGUI::clicked(int r, int k) {
     // Kijkt voor de derde klik
     } else if (g.clickCount == 2) {
         // Checkt of er terug op hetzelfde stuk werd geklikt
+        // TODO: Delete this line - if (g.getPiece(r, k) != nullptr)
         if (g.getPiece(r, k) == g.laatstClickedStuk) {
-           // Maak de selectie ongedaan
-           removeAllMarking();
-           // Reset help variabelen
-           g.clickCount = 0;
+            // Maak de selectie ongedaan
+            removeAllMarking();
+            // Reset help variabelen
+            g.clickCount = 0;
         } else {
             // Ga na of er op een geldige zet werd geklikt
             vector<pair<int, int>> v = g.laatstClickedStuk->geldige_zetten(g);
             for (int i = 0; i < v.size(); ++i) {
                 if (r == v[i].first && k == v[i].second) {
-                   g.move(g.laatstClickedStuk, r, k);
-                   // Maak de selectie ongedaan
-                   removeAllMarking();
-                   // Update de Grafische weergave
-                   update();
+                    // Dan move je dat stuk
+                    g.move(g.laatstClickedStuk, r, k);
+                    // Maak de selectie ongedaan
+                    removeAllMarking();
+                    // Update de Grafische weergave
+                    update();
                 }
             }
             // Kijk of het stuk is verplaats
@@ -154,20 +183,18 @@ void SchaakGUI::clicked(int r, int k) {
             } else {
                 message("Deze zet is ongeldig.");
                 // Reset help variabelen
-                removeAllMarking();
                 g.clickCount = 0;
             }
-            // Reset help variabelen
-            g.clickCount = 0;
-
         }
+        // Reset help variabelen
+        g.clickCount = 0;
     } else {
         // Doe niets
     }
 }
 
-void SchaakGUI::newGame()
-{}
+void SchaakGUI::newGame() {
+}
 
 
 void SchaakGUI::save() {
@@ -215,12 +242,28 @@ void SchaakGUI::open() {
     update();
 }
 
-
+// Bron: https://www.geeksforgeeks.org/implement-undo-and-redo-features-of-a-text-editor/
+// Inspiratie hoe ik de undo/ redo zou kunnen implementeren
 void SchaakGUI::undo() {
+    if (undoStack.empty()) {
+        return;
+    }
+    redoStack.push(g.getBord());
+    g.setBord(undoStack.top());
+    undoStack.pop();
     message("Je hebt undo gekozen");
+    update();
 }
 
-void SchaakGUI::redo() {}
+void SchaakGUI::redo() {
+    if (redoStack.empty()) {
+        return;
+    }
+    g.setBord(redoStack.top());
+    redoStack.pop();
+    message("Je hebt redo gekozen");
+    update();
+}
 
 
 void SchaakGUI::visualizationChange() {
