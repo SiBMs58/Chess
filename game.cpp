@@ -92,6 +92,7 @@ bool Game::move(SchaakStuk* s, int r, int k) {
             }
         }
     }
+    stukVerplaatst = true;
     // Er word alleen verplaatst indien de zet er niet voor zorgt dat de koning van de eigen kleur schaak komt te staan
     // Kijk of je de vorige zet al schaak stond zo ja dan moet je wel kunnen verplaatsen
     // Note; het reseten van de zet was niet mogelijk via recursie d.m.v. segmentation fault
@@ -110,7 +111,6 @@ bool Game::move(SchaakStuk* s, int r, int k) {
         stukVerplaatst = false;
         return false;
     }
-    stukVerplaatst = true;
     return true;
 }
 
