@@ -5,7 +5,8 @@
 
 #include "game.h"
 
-#include <string>
+// TODO: Erbij geschreven
+#include <algorithm>
 
 Game::Game() {
     // Zet alle vakjes gelijk aan een nullptr
@@ -18,7 +19,6 @@ Game::Game() {
 }
 
 Game::~Game() {
-
 }
 
 // Zet het bord klaar; voeg de stukken op de juiste plaats toe
@@ -72,18 +72,13 @@ void Game::setStartBord() {
     }
 }
 
-
 // Verplaats stuk s naar positie (r,k)
 // Als deze move niet mogelijk is, wordt false teruggegeven
 // en verandert er niets aan het schaakbord.
 // Anders wordt de move uitgevoerd en wordt true teruggegeven
 bool Game::move(SchaakStuk* s, int r, int k) {
-    // Er word alleen verplaatst indien de zet er niet voor zorgt dat de koning van de eigen kleur schaak komt te staan
-    // Kijk of je de vorige zet al schaak stond zo ja dan moet je wel kunnen verplaatsen
-    if (s->isKoning() && schaak(s->getKleur()) && schaak(laatstClickedStuk->getKleur()) == false) {
-        return false;
-    }
     // Update de positie
+    pair<int, int> oudePositie;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             // Zet het nieuwe stuk
@@ -92,9 +87,28 @@ bool Game::move(SchaakStuk* s, int r, int k) {
             }
             // Zet het oude vakje leeg
             else if (getPiece(i, j) == s){
+                oudePositie = make_pair(i, j);
                 bord[i][j] = nullptr;
             }
         }
+    }
+    // Er word alleen verplaatst indien de zet er niet voor zorgt dat de koning van de eigen kleur schaak komt te staan
+    // Kijk of je de vorige zet al schaak stond zo ja dan moet je wel kunnen verplaatsen
+    // Note; het reseten van de zet was niet mogelijk via recursie d.m.v. segmentation fault
+    if (s->isKoning() == false && schaak(s->getKleur())) {
+        // Reset je de locatie // Note; het resetten van de zet was niet mogelijk via recursie d.m.v. segmentation fault
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                if (i == r && j == k) {
+                    bord[i][j] = nullptr;
+                }
+                else if (oudePositie.first == i && oudePositie.second == j) {
+                    bord[i][j] = s;
+                }
+            }
+        }
+        stukVerplaatst = false;
+        return false;
     }
     stukVerplaatst = true;
     return true;
@@ -123,7 +137,7 @@ bool Game::schaak(zw kleur) {
                     // bereken voor elk vijandelijk stuk de geldige zetten
                     SchaakStuk* s = getPiece(r, k);
                     vector<pair<int, int>> v =s->geldige_zetten(*this);
-                    // Kijk dan of een van de geldige zetten gelijk is aan de postie van d koning
+                    // Kijk dan of een van de geldige zetten gelijk is aan de postie van de koning
                     for (int i = 0; i < v.size(); ++i) {
                         if (v[i].first == rijKoning && v[i].second == kolomKoning) {
                             return true;
@@ -149,19 +163,24 @@ bool Game::schaakmat(zw kleur) {
                 if (bord[r][k] != nullptr && getPiece(r, k)->getKleur() == kleur && bord[r][k]->isKoning()) {
                     SchaakStuk* koning = getPiece(r, k);
                     // Bepaal de geldige zetten van de koning
-                    vector<pair<int, int>> v = getPiece(r, k)->geldige_zetten(*this);
+                    vector<pair<int, int>> v = koning->geldige_zetten(*this);
                     for (int i = 0; i < v.size(); ++i) {
-                        // We stimuleren nu alle geldige zetten om de zien dat we die mogen doen
-                        if (move(koning, v[i].first, v[i].second)) {
+                        // We stimuleren nu alle geldige zetten om te zien dat er een mogelijke
+                        // TODO: Erbij geschreven
+                        move(koning, v[i].first, v[i].second);
+                        // zet is die er voor zorgt dat de kleur niet meer schaak zal staan
+                        if (schaak(koning->getKleur()) == false) {
+                            // Zetten we hem terug naar oorspronkelijke positie en
+                            move(koning, r, k);
                             return false;
-                        } else if (move(koning, v[i].first, v[i].second) == false) {
-                            return true;
                         }
+                        // Zetten we hem terug naar oorspronkelijke positie en
+                        move(koning, r, k);
                     }
                 }
             }
         }
-        return false;
+        return true;
     }
 }
 
@@ -169,7 +188,7 @@ bool Game::schaakmat(zw kleur) {
 // (pat = geen geldige zet mogelijk, maar kleur staat niet schaak;
 // dit resulteert in een gelijkspel)
 bool Game::pat(zw kleur) {
-    if (schaak(kleur) == false || schaak(kleur) == false) {
+    if (schaak(wit) == false || schaak(zwart) == false) {
         return false;
     } else {
         // Kijk of er nog een stuk is van die kleur die een geldige zet kan uitoefenen die niet wordt terug geroepen
@@ -180,9 +199,17 @@ bool Game::pat(zw kleur) {
                         SchaakStuk* s= getPiece(r, k);
                         vector<pair<int, int>> v = s->geldige_zetten(*this);
                         for (int i = 0; i < v.size(); ++i) {
-                            if (move(s, v[i].first, v[i].second) == false) {
-                                return true;
+                            // We stimuleren nu alle geldige zetten om te zien dat er een mogelijke
+                            // TODO: Erbij geschreven
+                            move(s, v[i].first, v[i].second);
+                            // zet is die er voor zorgt dat de kleur niet meer schaak zal staan
+                            if (schaak(s->getKleur()) == false) {
+                                // Zetten we hem terug naar oorspronkelijke positie en
+                                move(s, r, k);
+                                return false;
                             }
+                            // Zetten we hem terug naar oorspronkelijke positie en
+                            move(s, r, k);
                         }
                     }
                 }
@@ -206,4 +233,27 @@ SchaakStuk* Game::getPiece(int r, int k) {
 void Game::setPiece(int r, int k, SchaakStuk* s) {
     // Hier komt jouw code om een stuk neer te zetten op het bord
     bord[r][k] = s;
+}
+
+
+// Get bord
+vector<vector<SchaakStuk*>> Game::getBord() const {
+    // Maak een deepcopy van het bord
+    vector<vector<SchaakStuk*>> copy(8, vector<SchaakStuk*>(8));
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            copy[i][j] = bord[i][j];
+        }
+    }
+    return copy;
+}
+
+// Set Bord
+void Game::setBord(vector<vector<SchaakStuk*>> nieuwBord) {
+    // Maak een deepcopy van het bord
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            bord[i][j] = nieuwBord[i][j];
+        }
+    }
 }
