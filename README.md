@@ -19,7 +19,7 @@ To run the Chess Game on your local machine, please follow these steps:
 
 1. Ensure that you have QT installed on your system. You can download it from the official QT website: https://www.qt.io.
 2. Clone the repository to your local machine using the following command:
-  git clone <repo-url>
+  git clone [repo-url]
 3. Open the project in your QT IDE.
 4. Build and compile the project.
 5. Run the application, and the Chess Game will launch on your screen.
