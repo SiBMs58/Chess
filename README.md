@@ -1,6 +1,6 @@
 # Chess Game (QT GUI)
 
-- This read me is Ai, genereted
+- This README is Ai, genereted
 
 Welcome to the Chess Game! This is a chess application created using the QT framework for the graphical user interface (GUI). While the game is functional and playable, it does have some minor bugs that need to be addressed. Please keep in mind that this project is a work in progress and not yet perfect.
 
